@@ -1,7 +1,10 @@
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -37,7 +40,7 @@ import org.w3c.dom.NodeList;
 
 
 public class SchemaPersister {
-	private static String EXPORT_FILESYSTEM_ROOT = "c:/temp/destination/";
+	private static String EXPORT_FILESYSTEM_ROOT = "XML/";
 
 	private static CredentialsProvider credsProvider;
 	private static CloseableHttpClient client;
@@ -53,6 +56,7 @@ public class SchemaPersister {
 
 	public SchemaPersister() throws KeyManagementException, NoSuchAlgorithmException {
 
+
 		credsProvider = web.prepareCredentials(PROXY_HOST, PROXY_DOMAIN, PROXY_PORT, ProxyUserName, ProxyPassword);
 		client = web.prepareServiceClient(credsProvider, PROXY_HOST, PROXY_PORT, ProxyUserName);
 
@@ -64,14 +68,14 @@ public class SchemaPersister {
 		context.setAuthCache(authCache);
 	}
 
-	public Schema getSchema(String url) {
+	public Schema getSchema(String url, boolean download) {
 
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 		// without proxy
-		if (PROXY_HOST.equals("")) {
+		if (PROXY_HOST.equals("") && !download) {
 			try {
-				// return factory.newSchema(new URL(url));
+				return factory.newSchema(new URL(url));
 			} catch (Exception e) {
 				System.err.println("Can't get scheme online");
 				System.err.println("Link to scheme " + url);
@@ -134,6 +138,23 @@ public class SchemaPersister {
             e.doAll();
         }
     }
+
+	public void doItForFile(String FilePath) throws Exception {
+
+		Set<SchemaElement> allElements = new HashSet<SchemaElement>();
+
+		File dir = new File(FilePath);
+		if (dir.isDirectory()) {
+
+		} else {
+			allElements.add(new SchemaElement(new URL("file:" + dir.getAbsolutePath())));
+			System.out.println("Added: " + dir.getAbsolutePath());
+		}
+
+		for (SchemaElement e : allElements) {
+			e.doAll();
+		}
+	}
 
     class SchemaElement {
 
@@ -325,6 +346,7 @@ public class SchemaPersister {
 
                 tmp = tmp.replace("/", "_");
                 tmp = tmp.replace("\\", "_");
+				tmp = _url.toString().replaceFirst(".*/([^/?]+).*", "$1");
 
             }
 
@@ -346,10 +368,30 @@ public class SchemaPersister {
                     this._content = _httpContentCache.get(_url.toString());
                 } else {
 
-                    HttpGet get = new HttpGet(_url.toString());
-					HttpResponse response = client.execute(get, context);
-                    
-					_content = EntityUtils.toString(response.getEntity(), "UTF-8");
+					// handle http
+					if (_url.toString().startsWith("http")) {
+						HttpGet get = new HttpGet(_url.toString());
+						HttpResponse response = client.execute(get, context);
+
+						_content = EntityUtils.toString(response.getEntity(), "UTF-8");
+					}
+					// handle file
+					else {
+						File fileDir = new File(_url.getFile());
+
+						if (fileDir.exists()) {
+							BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "UTF-8"));
+							String str;
+
+							while ((str = in.readLine()) != null) {
+								if (_content == null) {
+									_content = str;
+								} else {
+									_content += str;
+								}
+							}
+						}
+					}
 
                     if (this._content != null) {
                         _httpContentCache.put(_url.toString(), this._content);
