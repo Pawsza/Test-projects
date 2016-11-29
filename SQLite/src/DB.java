@@ -24,7 +24,8 @@ public class DB {
 	public boolean createTable() {
 		try {
 			stmt = con.createStatement();
-			String sql = "CREATE TABLE EMAILS " + "(EMAIL 	CHAR(50) PRIMARY KEY     NOT NULL," + " WEBSITE   TEXT     NOT NULL, " + " DATE      TEXT     NOT NULL)";
+			String sql = "CREATE TABLE EMAILS " + "(EMAIL 	CHAR(50) PRIMARY KEY     NOT NULL," + " WEBSITE   TEXT     NOT NULL, " + " DATE      TEXT     NOT NULL,"
+					+ " COUNTS   integer     NOT NULL )";
 			stmt.executeUpdate(sql);
 			stmt.close();
 		} catch (Exception e) {
@@ -35,26 +36,33 @@ public class DB {
 		return true;
 	}
 
-	public boolean insert() {
+	public synchronized boolean insert(String email, String webpage) {
 		try {
 			stmt = con.createStatement();
 
 			String sql;
 
-			for (int i = 4; i <= 1000000; i++) {
-				sql = "INSERT INTO EMAILS (EMAIL, WEBSITE, DATE) " + "VALUES ('pawelek-91@o" + i + ".pl', 'www.o" + i + ".pl', CURRENT_TIMESTAMP);";
-				stmt.executeUpdate(sql);
-			}
+			sql = "INSERT INTO EMAILS (EMAIL, WEBSITE, DATE, COUNTS) " + "VALUES ('" + email + "', '" + webpage + "', CURRENT_TIMESTAMP , 1);";
+			stmt.executeUpdate(sql);
 
 			// sql = "INSERT INTO EMAILS (EMAIL, WEBSITE, DATE) " + "VALUES ('basia@gmail.com', 'www.google.pl', 'now');";
 			// stmt.executeUpdate(sql);
 
 			stmt.close();
 			con.commit();
-			con.close();
 		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			return false;
+			try {
+				stmt = con.createStatement();
+
+				String sql = "UPDATE EMAILS set COUNTS = COUNTS + 1 where email = '" + email + "';";
+				stmt.executeUpdate(sql);
+
+				stmt.close();
+				con.commit();
+			} catch (Exception ee) {
+				System.out.println("Insert ocurred errors");
+				return false;
+			}
 		}
 		System.out.println("Records created successfully");
 		return true;
@@ -65,10 +73,7 @@ public class DB {
 			stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT * FROM EMAILS;");
 			while (rs.next()) {
-				System.out.println("Email = " + rs.getString("EMAIL"));
-				System.out.println("Website = " + rs.getString("website"));
-				System.out.println("Time = " + rs.getString("DATE"));
-				System.out.println();
+				System.out.println(rs.getInt("Counts") + "\t" + rs.getString("EMAIL"));
 			}
 			rs.close();
 			stmt.close();
