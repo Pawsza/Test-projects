@@ -11,7 +11,7 @@ public class Main {
 		DB db = new DB();
 		db.connect("emails");
 		// db.createTable();
-		db.insert("pawelek-91@o2.pl", "www.o2.pl");
+		db.insert("basia@o2.pl", "www.onet.pl");
 		db.select();
 		db.disconnect();
 

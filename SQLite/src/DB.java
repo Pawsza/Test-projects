@@ -40,13 +40,8 @@ public class DB {
 		try {
 			stmt = con.createStatement();
 
-			String sql;
-
-			sql = "INSERT INTO EMAILS (EMAIL, WEBSITE, DATE, COUNTS) " + "VALUES ('" + email + "', '" + webpage + "', CURRENT_TIMESTAMP , 1);";
+			String sql = "INSERT INTO EMAILS (EMAIL, WEBSITE, DATE, COUNTS) " + "VALUES ('" + email + "', '" + webpage + "', CURRENT_TIMESTAMP , 1);";
 			stmt.executeUpdate(sql);
-
-			// sql = "INSERT INTO EMAILS (EMAIL, WEBSITE, DATE) " + "VALUES ('basia@gmail.com', 'www.google.pl', 'now');";
-			// stmt.executeUpdate(sql);
 
 			stmt.close();
 			con.commit();
