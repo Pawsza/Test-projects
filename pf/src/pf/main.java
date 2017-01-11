@@ -14,14 +14,15 @@ public class main {
 	public static void main(String[] args) {
 		
 		int passed = 0, failed = 0;
+		long max = 0;
 		
-		for(int i=0; i <10; i++){
+		for(int i=0; i <1; i++){
 		
 			long startTime;
 			HashMap<String, Long> times = new HashMap<String, Long>();
 
 			startTime = System.currentTimeMillis();
-			map m = new map(101, 5);
+			map m = new map(101, 105);
 			times.put("Stworzenia mapy", System.currentTimeMillis()-startTime);
 			
 			startTime = System.currentTimeMillis();
@@ -53,8 +54,13 @@ public class main {
 	
 			    System.out.println(value + "ms \t" + key);
 			}
-		
+//			for(Map.Entry<String, Long> entry : times.entrySet()) {
+//			    if (entry.getKey().equals("A*")){
+//				   if (entry.getValue()>max) max = entry.getValue();
+//			    };
+//			}
 		}
+//	    System.out.println(max + "ms \t Max time of A*" );
 		System.out.print("Passed: "+passed+"\tFailed: "+failed);
 	}
 }
