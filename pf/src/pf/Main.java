@@ -1,28 +1,26 @@
 package pf;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import map.map;
 import utils.AStar;
 import utils.labGen;
 import utils.tools;
 
-public class main {
+public class Main {
 
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		
 		int passed = 0, failed = 0;
 		long max = 0;
 		
 		for(int i=0; i <1; i++){
-		
 			long startTime;
 			HashMap<String, Long> times = new HashMap<String, Long>();
 
 			startTime = System.currentTimeMillis();
-			map m = new map(101, 105);
+			map m = new map(1051, 1051); //Przy wiêkszych mapach stack overflow? i nie zawsze przechodzi?
 			times.put("Stworzenia mapy", System.currentTimeMillis()-startTime);
 			
 			startTime = System.currentTimeMillis();
@@ -44,21 +42,23 @@ public class main {
 			tools.applayPathOnMap(m.getTiles(), AStar.getPath());
 			
 			startTime = System.currentTimeMillis();
-			tools.displayMap(m.getTiles());
+			//tools.displayMap(m.getTiles());
 			times.put("Wyœwietlenie", System.currentTimeMillis()-startTime);
 			
 			System.out.println();
-			for(Map.Entry<String, Long> entry : times.entrySet()) {
+			System.out.println("Start " + cor_start[0] + ":" + cor_start[1]);
+			System.out.println("Start " + cor_end[0] + ":" + cor_end[1]);
+			for(Entry<String, Long> entry : times.entrySet()) {
 			    String key = entry.getKey();
 			    Long value = entry.getValue();
 	
 			    System.out.println(value + "ms \t" + key);
 			}
-//			for(Map.Entry<String, Long> entry : times.entrySet()) {
-//			    if (entry.getKey().equals("A*")){
-//				   if (entry.getValue()>max) max = entry.getValue();
-//			    };
-//			}
+			for(Entry<String, Long> entry : times.entrySet()) {
+			    if (entry.getKey().equals("A*")){
+				   if (entry.getValue()>max) max = entry.getValue();
+			    };
+			}
 		}
 //	    System.out.println(max + "ms \t Max time of A*" );
 		System.out.print("Passed: "+passed+"\tFailed: "+failed);

@@ -12,8 +12,8 @@ public class AStar {
 	static ArrayList<int[]> path;
 	
 	public static boolean findWay(tile[][] tiles, int start_x, int start_y, int end_x,  int end_y){
-		visited = new ArrayList();
-		path = new ArrayList();
+		visited = new ArrayList<int[]>();
+		path = new ArrayList<int[]>();
 		return findWay(tiles, start_x, start_y, end_x, end_y, 0);
 	}
 	
@@ -110,10 +110,10 @@ public class AStar {
 		path.add(new int[]{x, y});
 	}
 	
-	public static ArrayList getPath(){
+	public static ArrayList<int[]> getPath(){
 		return path;
 	}
-	public static ArrayList getVisited(){
+	public static ArrayList<int[]> getVisited(){
 		return visited;
 	}
 }
